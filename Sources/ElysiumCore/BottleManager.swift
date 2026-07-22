@@ -7,6 +7,22 @@ public struct BottleConfiguration: Codable {
     public let targetPipeline: TranslationPipeline
     public let environmentVariables: [String: String]
     public let createdDate: Date
+    
+    public init(
+        bottleID: UUID,
+        name: String,
+        bottlePath: URL,
+        targetPipeline: TranslationPipeline,
+        environmentVariables: [String: String],
+        createdDate: Date
+    ) {
+        self.bottleID = bottleID
+        self.name = name
+        self.bottlePath = bottlePath
+        self.targetPipeline = targetPipeline
+        self.environmentVariables = environmentVariables
+        self.createdDate = createdDate
+    }
 }
 
 public final class BottleManager {

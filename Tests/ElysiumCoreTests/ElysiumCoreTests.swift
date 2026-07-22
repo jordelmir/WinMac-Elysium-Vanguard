@@ -34,4 +34,16 @@ final class ElysiumCoreTests: XCTestCase {
         XCTAssertEqual(env["DXVK_STATE_CACHE"], "1")
         XCTAssertNotNil(env["DXVK_STATE_CACHE_PATH"])
     }
+    
+    func testDependencyInjector() throws {
+        let tmpBottle = URL(fileURLWithPath: "/tmp/UnitTestBottle_\(UUID().uuidString)")
+        let deps = try DependencyInjector.shared.resolveDependencies(for: "DirectX 9 (D3D9)", bottlePath: tmpBottle)
+        XCTAssertTrue(deps.contains(.xact))
+    }
+    
+    func testGamePatchRegistry() throws {
+        let patch = GamePatchRegistry.shared.findPatch(for: "Cyberpunk2077.exe")
+        XCTAssertNotNil(patch)
+        XCTAssertEqual(patch?.envOverrides["VKD3D_CONFIG"], "dxr11,dxr")
+    }
 }
