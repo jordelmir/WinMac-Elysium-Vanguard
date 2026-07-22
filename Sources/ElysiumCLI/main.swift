@@ -31,7 +31,7 @@ func printStatus() {
     print("  ┌─ WINE RUNTIMES ─────────────────────────────────────────┐")
     if wines.isEmpty {
         print("  │  ⚠️  No Wine installations detected on this system.")
-        print("  │  Install via: brew install --cask game-porting-toolkit")
+        print("  │  Run: 'elysium-cli setup-wine' to auto-download Wine runtime.")
     } else {
         for (i, w) in wines.enumerated() {
             let marker = (i == 0) ? "★" : "·"
@@ -63,7 +63,28 @@ func printStatus() {
     }
     print("  └─────────────────────────────────────────────────────────┘\n")
     
-    print("  Commands: status | scan <folder> | launch <game-name> | gui")
+    print("  Commands: status | setup-wine | scan <folder> | launch <game-name> | gui")
+}
+
+func setupWine() {
+    printBanner()
+    print("  🚀 Initiating automated 1-click Wine Runtime Download & Installation...")
+    let semaphore = DispatchSemaphore(value: 0)
+    
+    WineDownloader.shared.downloadAndInstallWine { progress, status in
+        print("  [Progress: \(Int(progress * 100))%] \(status)")
+    } completion: { result in
+        switch result {
+        case .success(let binaryPath):
+            print("  ✅ Wine Runtime installed successfully!")
+            print("     Binary: \(binaryPath.path)")
+        case .failure(let error):
+            print("  ❌ Download/Extraction failed: \(error.localizedDescription)")
+        }
+        semaphore.signal()
+    }
+    
+    semaphore.wait()
 }
 
 func scanFolder(_ path: String) {
@@ -83,13 +104,11 @@ func scanFolder(_ path: String) {
     print("     Arch        : \(exe.is64Bit ? "64-bit (x64)" : "32-bit (x86)")")
     print("     Score       : \(exe.score)\n")
     
-    // Engine detection
     let engine = GameEngineProfileDetector.shared.detectEngine(in: url, mainExeName: exe.fileName)
     print("  🏗  Engine Detected : \(engine.engineType.rawValue)")
     print("     MetalFX Support : \(engine.supportsMetalFX ? "YES" : "NO")")
     print("     FPS Limit       : \(engine.defaultFPSLimit)\n")
     
-    // Add to library
     do {
         let entry = try GameLibraryStore.shared.addGame(from: url)
         print("  🍾 Added to library: \(entry.gameName)")
@@ -109,6 +128,7 @@ func launchGame(_ name: String) {
     
     guard let wine = WineProcessLauncher.shared.selectBestWine() else {
         print("  ❌ No Wine installation found.")
+        print("  👉 Run: 'elysium-cli setup-wine' to download the Wine runtime automatically.")
         return
     }
     
@@ -142,6 +162,8 @@ func launchGame(_ name: String) {
 switch command {
 case "status":
     printStatus()
+case "setup-wine":
+    setupWine()
 case "scan":
     guard args.count > 2 else {
         print("  Usage: elysium-cli scan <path-to-game-folder>")
@@ -156,8 +178,8 @@ case "launch":
     launchGame(args[2...].joined(separator: " "))
 case "gui":
     printBanner()
-    print("  Launching GUI... (use 'elysium-app' binary for the full UI experience)")
+    print("  Launching GUI...")
 default:
     print("  Unknown command: \(command)")
-    print("  Commands: status | scan <folder> | launch <game-name> | gui")
+    print("  Commands: status | setup-wine | scan <folder> | launch <game-name> | gui")
 }

@@ -2,6 +2,7 @@ import Foundation
 import os
 
 public enum WineBinarySource: String, Codable {
+    case elysiumWine = "Elysium Vanguard Internal Wine"
     case whiskyWine = "WhiskyWine (Proton-based)"
     case wineGE = "Wine-GE (GloriousEggroll)"
     case crossoverWine = "CrossOver Wine (CodeWeavers)"
@@ -29,7 +30,10 @@ public final class WineProcessLauncher {
         logger.log(.info, subsystem: "WineLauncher", message: "Searching for system Wine installations...")
         var installs: [WineInstallation] = []
         
+        let elysiumWineBinary = WineDownloader.shared.elysiumWineDir.appendingPathComponent("bin/wine64")
+        
         let searchPaths: [(URL, WineBinarySource, String)] = [
+            (elysiumWineBinary, .elysiumWine, "2.0"),
             (URL(fileURLWithPath: "/usr/local/opt/game-porting-toolkit/bin/wine64"), .gamePortingToolkit, "2.0"),
             (URL(fileURLWithPath: "/opt/homebrew/opt/game-porting-toolkit/bin/wine64"), .gamePortingToolkit, "2.0"),
             (URL(fileURLWithPath: "\(NSHomeDirectory())/Library/Application Support/com.isaacmarovitz.Whisky/Libraries/Wine/bin/wine64"), .whiskyWine, "9.x"),
@@ -70,9 +74,9 @@ public final class WineProcessLauncher {
         let priorityOrder: [WineBinarySource]
         switch profile.cpuArch {
         case .appleSilicon:
-            priorityOrder = [.gamePortingToolkit, .whiskyWine, .crossoverWine, .wineGE]
+            priorityOrder = [.elysiumWine, .gamePortingToolkit, .whiskyWine, .crossoverWine, .wineGE]
         case .intelx86:
-            priorityOrder = [.crossoverWine, .wineGE, .whiskyWine, .gamePortingToolkit]
+            priorityOrder = [.elysiumWine, .crossoverWine, .wineGE, .whiskyWine, .gamePortingToolkit]
         }
         
         for preferred in priorityOrder {
