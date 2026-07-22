@@ -24,6 +24,9 @@ cp ".build/release/elysium-app" "$APP_PATH/Contents/MacOS/elysium-app"
 if [ -f "Sources/ElysiumUI/Resources/AppIcon.icns" ]; then
     cp "Sources/ElysiumUI/Resources/AppIcon.icns" "$APP_PATH/Contents/Resources/AppIcon.icns"
 fi
+if [ -f "Sources/ElysiumUI/Resources/elysium_logo.jpg" ]; then
+    cp "Sources/ElysiumUI/Resources/elysium_logo.jpg" "$APP_PATH/Contents/Resources/elysium_logo.jpg"
+fi
 
 cat <<EOF > "$APP_PATH/Contents/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
@@ -33,6 +36,8 @@ cat <<EOF > "$APP_PATH/Contents/Info.plist"
     <key>CFBundleExecutable</key>
     <string>elysium-app</string>
     <key>CFBundleIconFile</key>
+    <string>AppIcon.icns</string>
+    <key>CFBundleIconName</key>
     <string>AppIcon</string>
     <key>CFBundleIdentifier</key>
     <string>com.elysium.vanguard</string>
