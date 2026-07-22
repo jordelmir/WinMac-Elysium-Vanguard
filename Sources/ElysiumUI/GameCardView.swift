@@ -23,21 +23,21 @@ public struct GameCardView: View {
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .fill(
                             LinearGradient(
-                                colors: [Color.black.opacity(0.8), Color(hex: "#0A0A1A").opacity(0.9)],
+                                colors: [Color.black.opacity(0.85), Color(hex: "#051020").opacity(0.95)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
                 )
             
-            // Neon border glow
+            // Neon border glow (Cobalt Blue -> Cyan -> Tactical Green)
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .stroke(
                     LinearGradient(
                         colors: [
-                            theme.primaryColor.opacity(isHovered ? 1 : 0.3),
-                            theme.secondaryColor.opacity(isHovered ? 0.8 : 0.1),
-                            theme.tertiaryColor.opacity(0.2)
+                            theme.primaryColor.opacity(isHovered ? 1.0 : 0.4),
+                            theme.secondaryColor.opacity(isHovered ? 0.8 : 0.2),
+                            theme.tertiaryColor.opacity(0.3)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -52,7 +52,7 @@ public struct GameCardView: View {
                     RoundedRectangle(cornerRadius: 12)
                         .fill(
                             LinearGradient(
-                                colors: [theme.primaryColor.opacity(0.1), theme.secondaryColor.opacity(0.05)],
+                                colors: [theme.primaryColor.opacity(0.15), theme.secondaryColor.opacity(0.08)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -61,8 +61,8 @@ public struct GameCardView: View {
                     
                     Image(systemName: "gamecontroller.fill")
                         .font(.system(size: 40))
-                        .foregroundColor(theme.primaryColor.opacity(0.6))
-                        .shadow(color: theme.primaryColor.opacity(0.4), radius: 10)
+                        .foregroundColor(theme.primaryColor.opacity(0.8))
+                        .shadow(color: theme.primaryColor.opacity(0.5), radius: 10)
                 }
                 
                 // Title
@@ -77,7 +77,7 @@ public struct GameCardView: View {
                         .font(.system(size: 9, weight: .semibold, design: .monospaced))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(theme.primaryColor.opacity(0.15))
+                        .background(theme.primaryColor.opacity(0.2))
                         .foregroundColor(theme.primaryColor)
                         .cornerRadius(4)
                     
@@ -85,7 +85,7 @@ public struct GameCardView: View {
                         .font(.system(size: 9, weight: .semibold, design: .monospaced))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(theme.tertiaryColor.opacity(0.15))
+                        .background(theme.tertiaryColor.opacity(0.2))
                         .foregroundColor(theme.tertiaryColor)
                         .cornerRadius(4)
                 }
@@ -111,7 +111,7 @@ public struct GameCardView: View {
                         .foregroundColor(.gray)
                 }
                 
-                // Play Button
+                // Launch Button (Tactical Cobalt Blue -> Cyan Laser, ZERO PINK)
                 Button(action: onPlay) {
                     HStack {
                         Image(systemName: "bolt.fill")
@@ -129,7 +129,7 @@ public struct GameCardView: View {
                     )
                     .foregroundColor(.black)
                     .cornerRadius(10)
-                    .shadow(color: theme.primaryColor.opacity(0.5), radius: isHovered ? 12 : 4)
+                    .shadow(color: theme.primaryColor.opacity(0.6), radius: isHovered ? 12 : 4)
                 }
                 .buttonStyle(.plain)
             }
