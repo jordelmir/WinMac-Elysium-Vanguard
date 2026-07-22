@@ -15,9 +15,9 @@ public struct GameLibraryView: View {
     
     public var body: some View {
         ZStack {
-            // Layer 0: Dark gradient base
+            // Layer 0: Dark obsidian base
             LinearGradient(
-                colors: [Color.black, Color(hex: "#030814"), Color(hex: "#051020")],
+                colors: [Color.black, Color(hex: "#020712"), Color(hex: "#040D1C")],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -58,13 +58,13 @@ public struct GameLibraryView: View {
             // 3D Animated Logo
             ElysiumLogoView(size: .small)
             
-            // Title
+            // Title (Pure Cobalt Blue to Cyan Laser Gradient - ZERO PINK)
             VStack(alignment: .leading, spacing: 2) {
                 Text("WINMAC ELYSIUM VANGUARD")
                     .font(.system(size: 18, weight: .black, design: .monospaced))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [theme.primaryColor, theme.secondaryColor],
+                            colors: [theme.primaryColor, theme.tertiaryColor],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -114,7 +114,7 @@ public struct GameLibraryView: View {
             Button(action: { showSettings.toggle() }) {
                 Image(systemName: showSettings ? "xmark.circle.fill" : "gearshape.fill")
                     .font(.system(size: 18))
-                    .foregroundColor(showSettings ? theme.secondaryColor : .gray)
+                    .foregroundColor(showSettings ? theme.tertiaryColor : .gray)
             }
             .buttonStyle(.plain)
         }
@@ -132,7 +132,7 @@ public struct GameLibraryView: View {
                     .font(.system(size: 22, weight: .black, design: .monospaced))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [theme.primaryColor, theme.secondaryColor],
+                            colors: [theme.primaryColor, theme.tertiaryColor],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -153,7 +153,7 @@ public struct GameLibraryView: View {
                 .padding(.vertical, 14)
                 .background(
                     LinearGradient(
-                        colors: [theme.primaryColor, theme.secondaryColor],
+                        colors: [theme.primaryColor, theme.tertiaryColor],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
