@@ -8,6 +8,7 @@ let package = Package(
     ],
     products: [
         .executable(name: "elysium-cli", targets: ["ElysiumCLI"]),
+        .executable(name: "elysium-app", targets: ["ElysiumApp"]),
         .library(name: "ElysiumCore", targets: ["ElysiumCore"]),
         .library(name: "ElysiumUI", targets: ["ElysiumUI"])
     ],
@@ -27,6 +28,11 @@ let package = Package(
             name: "ElysiumCLI",
             dependencies: ["ElysiumCore", "ElysiumUI"],
             path: "Sources/ElysiumCLI"
+        ),
+        .executableTarget(
+            name: "ElysiumApp",
+            dependencies: ["ElysiumCore", "ElysiumUI"],
+            path: "Sources/ElysiumApp"
         ),
         .testTarget(
             name: "ElysiumCoreTests",

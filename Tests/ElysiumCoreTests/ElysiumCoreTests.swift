@@ -22,4 +22,16 @@ final class ElysiumCoreTests: XCTestCase {
         XCTAssertEqual(bottle.name, "UnitTestGame")
         XCTAssertTrue(FileManager.default.fileExists(atPath: bottle.bottlePath.path))
     }
+    
+    func testGameEngineDetection() throws {
+        let dummyFolder = URL(fileURLWithPath: "/tmp/dummy_ue5_game")
+        let tuning = GameEngineProfileDetector.shared.detectEngine(in: dummyFolder, mainExeName: "UnrealGame.exe")
+        XCTAssertNotNil(tuning.recommendedEnv["WINEESYNC"])
+    }
+    
+    func testShaderCacheManager() throws {
+        let env = ShaderCacheManager.shared.prepareShaderCache(for: "Cyberpunk2077")
+        XCTAssertEqual(env["DXVK_STATE_CACHE"], "1")
+        XCTAssertNotNil(env["DXVK_STATE_CACHE_PATH"])
+    }
 }
