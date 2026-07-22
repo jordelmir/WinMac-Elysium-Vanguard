@@ -8,6 +8,18 @@ public struct SettingsView: View {
     @State private var selectedWineSource: WineBinarySource? = nil
     @State private var hardwareProfile = HardwareProbe.shared.detectProfile()
     
+    // ── Graphics & Container Configuration State ──
+    @State private var selectedResolution: String = "1280x720"
+    @State private var gpuSpoofing: String = "Off"
+    @State private var isMangoHUDEnabled: Bool = false
+    @State private var dxPerformancePanel: String = "Disable"
+    @State private var isWindowManagerDisabled: Bool = false
+    @State private var isImageEnhancerDisabled: Bool = false
+    @State private var gpuDriver: String = "Builtin Apple Metal (wined3d)"
+    @State private var dxvkVersion: String = "wined3d (Native Wine D3D9)"
+    @State private var vkd3dVersion: String = "vkd3d-proton-2.14.1"
+    @State private var vramLimit: String = "Unlimited"
+    
     @State private var customPrimaryHex: String = "#0088FF"
     @State private var customSecondaryHex: String = "#00FFCC"
     @State private var customTertiaryHex: String = "#39FF14"
@@ -19,7 +31,30 @@ public struct SettingsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 
-                // ── SECTION 1: HARDWARE PROFILE ──────────────────
+                // ── SECTION 1: GRAPHICS & CONTAINER CONFIGURATION ──────────────────
+                sectionHeader("GRAPHICS ENGINE & CONTAINER CONFIGURATION")
+                
+                NeonGlassCardView {
+                    VStack(alignment: .leading, spacing: 14) {
+                        pickerRow("Game resolution", $selectedResolution, ["1280x720", "1920x1080", "2560x1440", "Native Windowed"])
+                        pickerRow("GPU model spoofing", $gpuSpoofing, ["Off", "NVIDIA GeForce RTX 3080", "AMD Radeon RX 6900 XT", "NVIDIA GeForce GTX 1080"])
+                        
+                        toggleRow("MangoHUD overlay", $isMangoHUDEnabled)
+                        pickerRow("DirectX performance panel", $dxPerformancePanel, ["Disable", "Compact", "Full", "Minimal"])
+                        toggleRow("Disable window manager", $isWindowManagerDisabled)
+                        toggleRow("Disable image quality enhancement plugin", $isImageEnhancerDisabled)
+                        
+                        Divider().background(theme.primaryColor.opacity(0.2))
+                        
+                        pickerRow("GPU driver", $gpuDriver, ["Builtin Apple Metal (wined3d)", "MoltenVK 1.4 Native", "Game Porting Toolkit D3DMetal"])
+                        pickerRow("DXVK version", $dxvkVersion, ["wined3d (Native Wine D3D9)", "dxvk-2.3.1-async", "dxvk-1.10.3"])
+                        pickerRow("VKD3D version", $vkd3dVersion, ["vkd3d-proton-2.14.1", "vkd3d (Builtin Wine)"])
+                        pickerRow("VRAM limit", $vramLimit, ["Unlimited", "2048 MB", "4096 MB", "8192 MB"])
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                
+                // ── SECTION 2: HARDWARE DIAGNOSTICS ──────────────────
                 sectionHeader("HARDWARE DIAGNOSTICS")
                 
                 NeonGlassCardView {
@@ -32,7 +67,7 @@ public struct SettingsView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 
-                // ── SECTION 2: WINE RUNTIME MANAGER ──────────────
+                // ── SECTION 3: WINE RUNTIME MANAGER ──────────────
                 sectionHeader("WINE RUNTIME MANAGER")
                 
                 NeonGlassCardView {
@@ -80,7 +115,7 @@ public struct SettingsView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 
-                // ── SECTION 3: TACTICAL NEON CUSTOMIZER ──────────
+                // ── SECTION 4: TACTICAL NEON CUSTOMIZER ──────────
                 sectionHeader("TACTICAL NEON CUSTOMIZER (4-TIER)")
                 
                 NeonGlassCardView {
@@ -135,6 +170,7 @@ public struct SettingsView: View {
         }
     }
     
+    // MARK: - UI Component Helpers
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
             .font(.system(size: 11, weight: .black, design: .monospaced))
@@ -151,6 +187,37 @@ public struct SettingsView: View {
             Text(value)
                 .font(.system(size: 12, weight: .bold, design: .monospaced))
                 .foregroundColor(.white)
+        }
+    }
+    
+    private func pickerRow(_ label: String, _ selection: Binding<String>, _ options: [String]) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(label)
+                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                    .foregroundColor(.white)
+            }
+            Spacer()
+            Picker("", selection: selection) {
+                ForEach(options, id: \.self) { option in
+                    Text(option).tag(option)
+                }
+            }
+            .pickerStyle(.menu)
+            .tint(theme.tertiaryColor)
+            .frame(width: 220)
+        }
+    }
+    
+    private func toggleRow(_ label: String, _ isOn: Binding<Bool>) -> some View {
+        HStack {
+            Text(label)
+                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                .foregroundColor(.white)
+            Spacer()
+            Toggle("", isOn: isOn)
+                .toggleStyle(.switch)
+                .tint(theme.tertiaryColor)
         }
     }
     
