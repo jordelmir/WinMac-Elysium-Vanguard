@@ -62,12 +62,20 @@ public final class GameLibraryStore {
             throw LibraryError.noExecutableFound(folder: folderURL.path)
         }
         
-        let engineProfile = GameEngineProfileDetector.shared.detectEngine(
-            in: folderURL,
-            mainExeName: exeMeta.fileName
-        )
+        var isDir: ObjCBool = false
+        let isFile = fileManager.fileExists(atPath: folderURL.path, isDirectory: &isDir) && !isDir.boolValue
+        let rootFolderURL = isFile ? folderURL.deletingLastPathComponent() : folderURL
         
-        let gameName = folderURL.lastPathComponent
+        var rawGameName = rootFolderURL.lastPathComponent
+        let genericFolderNames = ["binaries", "bin", "win64", "win32", "x64", "x86", "release", "build"]
+        if genericFolderNames.contains(rawGameName.lowercased()) {
+            let parentName = rootFolderURL.deletingLastPathComponent().lastPathComponent
+            if !parentName.isEmpty && parentName != "/" {
+                rawGameName = parentName
+            }
+        }
+        
+        let gameName = rawGameName
             .replacingOccurrences(of: "_", with: " ")
             .replacingOccurrences(of: "-", with: " ")
         
@@ -89,6 +97,12 @@ public final class GameLibraryStore {
         // Prepare shader cache
         _ = ShaderCacheManager.shared.prepareShaderCache(for: gameName)
         
+        // Detect game engine for tuning profile
+        let engineProfile = GameEngineProfileDetector.shared.detectEngine(
+            in: rootFolderURL,
+            mainExeName: exeMeta.fileName
+        )
+        
         let entry = InstalledGameEntry(
             gameName: gameName,
             gameFolderPath: folderURL.path,
@@ -99,6 +113,8 @@ public final class GameLibraryStore {
             bottleID: bottle.bottleID
         )
         
+        // Remove previous entry for same executable if present
+        games.removeAll { $0.mainExecutablePath == entry.mainExecutablePath }
         games.append(entry)
         try saveToDisk()
         return entry

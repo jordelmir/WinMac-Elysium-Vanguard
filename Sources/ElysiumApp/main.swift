@@ -4,10 +4,26 @@ import ElysiumCore
 import ElysiumUI
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    override init() {
+        super.init()
+        Self.setDockIcon()
+    }
+    
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        Self.setDockIcon()
+    }
+    
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.activate(ignoringOtherApps: true)
+        Self.setDockIcon()
         
-        // ── Programmatically force Dock icon at runtime ──
+        if let window = NSApp.windows.first {
+            window.makeKeyAndOrderFront(nil)
+            window.center()
+        }
+    }
+    
+    private static func setDockIcon() {
         if let iconURL = Bundle.main.url(forResource: "AppIcon", withExtension: "icns"),
            let image = NSImage(contentsOf: iconURL) {
             NSApp.applicationIconImage = image
@@ -15,16 +31,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                   let logoImage = NSImage(contentsOf: logoURL) {
             NSApp.applicationIconImage = logoImage
         } else {
-            // Fallback: search contents resources folder directly
             let resPath = Bundle.main.bundlePath + "/Contents/Resources/AppIcon.icns"
             if let image = NSImage(contentsOfFile: resPath) {
                 NSApp.applicationIconImage = image
             }
-        }
-        
-        if let window = NSApp.windows.first {
-            window.makeKeyAndOrderFront(nil)
-            window.center()
         }
     }
 }

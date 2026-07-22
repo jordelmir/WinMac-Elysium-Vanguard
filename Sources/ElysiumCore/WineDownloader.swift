@@ -18,7 +18,7 @@ public final class WineDownloader {
     }
     
     public func downloadAndInstallWine(progressHandler: @escaping (Double, String) -> Void, completion: @escaping (Result<URL, Error>) -> Void) {
-        let tarURLString = "https://github.com/Whisky-App/WhiskyWine/releases/download/v2.0.0/WhiskyWine-2.0.0.tar.gz"
+        let tarURLString = "https://github.com/Gcenx/macOS_Wine_builds/releases/download/11.13/wine-staging-11.13-osx64.tar.xz"
         guard let url = URL(string: tarURLString) else { return }
         
         let logger = ElysiumLogger.shared
@@ -44,19 +44,24 @@ public final class WineDownloader {
                 logger.log(.info, subsystem: "WineDownloader", message: "Wine tarball downloaded. Extracting to \(self.elysiumWineDir.path)")
                 progressHandler(0.8, "Extracting Wine Runtime...")
                 
-                // Extract tarball
+                // Extract tarball (-xf handles both .gz and .xz automatically)
                 let process = Process()
                 process.executableURL = URL(fileURLWithPath: "/usr/bin/tar")
-                process.arguments = ["-xzf", destinationTar.path, "-C", self.elysiumWineDir.path]
+                process.arguments = ["-xf", destinationTar.path, "-C", self.elysiumWineDir.path]
                 try process.run()
                 process.waitUntilExit()
                 
-                let binaryPath = self.elysiumWineDir.appendingPathComponent("bin/wine64")
-                if self.fileManager.fileExists(atPath: binaryPath.path) {
+                let binaryPathApp = self.elysiumWineDir.appendingPathComponent("Wine Staging.app/Contents/Resources/wine/bin/wine")
+                let binaryPathDirect = self.elysiumWineDir.appendingPathComponent("bin/wine")
+                let binaryPath64 = self.elysiumWineDir.appendingPathComponent("bin/wine64")
+                
+                let foundBinary = [binaryPathApp, binaryPathDirect, binaryPath64].first { self.fileManager.fileExists(atPath: $0.path) }
+                
+                if let binaryPath = foundBinary {
                     logger.log(.info, subsystem: "WineDownloader", message: "Wine runtime installed successfully at \(binaryPath.path)")
                     completion(.success(binaryPath))
                 } else {
-                    let err = NSError(domain: "ElysiumWine", code: 404, userInfo: [NSLocalizedDescriptionKey: "Extraction completed but wine64 binary not found"])
+                    let err = NSError(domain: "ElysiumWine", code: 404, userInfo: [NSLocalizedDescriptionKey: "Extraction completed but wine binary not found"])
                     completion(.failure(err))
                 }
             } catch {

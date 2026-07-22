@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 import ElysiumCore
 
 public struct GameLibraryView: View {
@@ -199,10 +200,13 @@ public struct GameLibraryView: View {
     // MARK: - Actions
     private func selectGameFolder() {
         let panel = NSOpenPanel()
-        panel.canChooseFiles = false
+        panel.canChooseFiles = true
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
-        panel.title = "Select Uncompressed Game Folder"
+        if let exeType = UTType(filenameExtension: "exe") {
+            panel.allowedContentTypes = [exeType]
+        }
+        panel.title = "Select Windows Executable (.exe) or Game Folder"
         panel.prompt = "Add Game"
         
         if panel.runModal() == .OK, let url = panel.url {

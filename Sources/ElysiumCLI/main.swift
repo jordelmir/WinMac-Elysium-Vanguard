@@ -157,6 +157,151 @@ func launchGame(_ name: String) {
     }
 }
 
+func printAIGuide() {
+    printBanner()
+    print("""
+    🤖 ══════════════════════════════════════════════════════════════════ 🤖
+       AI AGENT OPERATIONAL DIRECTIVE & SYSTEM INTERFACE GUIDELINES
+    🤖 ══════════════════════════════════════════════════════════════════ 🤖
+    
+    1. CLI COMMAND INTERFACE:
+       - elysium-cli status            : Inspect hardware, Wine installations & library
+       - elysium-cli scan <folder>     : Auto-detect executable & add game to library
+       - elysium-cli launch <game>     : Launch game with optimal Wine profile
+       - elysium-cli diagnose          : Read active processes, logs & memory pressure
+       - elysium-cli gow2              : Instant launch Gears of War 2 optimized profile
+       - elysium-cli ai-guide          : Print this AI Operational Specification
+    
+    2. PERFORMANCE TUNING RECEPTACLE (UE3 / 32-bit Games):
+       - Memory Crash Fix: Set WINE_LARGE_ADDRESS_AWARE=0 (prevents 32-bit overflow)
+       - Multi-thread Sync: Set WINEESYNC=1 and WINEMSYNC=1
+       - Renderer Overrides: WINEDLLOVERRIDES="d3d9=builtin;d3d11=builtin;dxgi=builtin;dbghelp=n"
+       - Resolution & Display: Pass -windowed -ResX=1280 -ResY=720 -NOSPLASH
+    
+    3. LOG FILES & TELEMETRY:
+       - Game Logs: ~/Library/Application Support/ElysiumVanguard/Logs/
+       - Bottles  : ~/Library/Application Support/ElysiumVanguard/Bottles/
+       - Built-In Wine: /Users/jordelmirsdevhome/Wine/wine-11.13-install/bin/wine
+    """)
+}
+
+func printDiagnose() {
+    printBanner()
+    print("  🩺 RUNTIME DIAGNOSTICS & SYSTEM PERFORMANCE TELEMETRY\n")
+    
+    let hw = HardwareProbe.shared.detectProfile()
+    print("  ► GPU: \(hw.gpuName) | Metal 3: \(hw.isMetal3Supported ? "YES ✅" : "NO")")
+    print("  ► CPU Cores: \(ProcessInfo.processInfo.activeProcessorCount) cores")
+    print("  ► Physical Memory: \(ProcessInfo.processInfo.physicalMemory / (1024 * 1024 * 1024)) GB\n")
+    
+    print("  ► Checking Active Wine Processes...")
+    let task = Process()
+    task.executableURL = URL(fileURLWithPath: "/bin/ps")
+    task.arguments = ["aux"]
+    let pipe = Pipe()
+    task.standardOutput = pipe
+    try? task.run()
+    task.waitUntilExit()
+    let data = pipe.fileHandleForReading.readDataToEndOfFile()
+    if let psOutput = String(data: data, encoding: .utf8) {
+        let lines = psOutput.components(separatedBy: "\n").filter { $0.contains("wine") && !$0.contains("grep") }
+        if lines.isEmpty {
+            print("     (No active Wine processes running)")
+        } else {
+            for line in lines.prefix(5) {
+                print("     [PROC] \(line.prefix(120))")
+            }
+        }
+    }
+    
+    print("\n  ► Checking System Log Directory...")
+    let logDir = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Library/Application Support/ElysiumVanguard/Logs")
+    if let files = try? FileManager.default.contentsOfDirectory(atPath: logDir.path) {
+        for f in files {
+            print("     [LOG] \(f)")
+        }
+    } else {
+        print("     (No logs found in \(logDir.path))")
+    }
+}
+
+func launchGOW2Direct() {
+    printBanner()
+    print("  🎮 Launching Gears of War 2 via Optimized Wine 11.13 Profile...")
+    let scriptPath = "/Users/jordelmirsdevhome/Downloads/Juegos/Win Mac Elysium Vanguard /Scripts/launch_gow2_wine11.sh"
+    guard FileManager.default.fileExists(atPath: scriptPath) else {
+        print("  ❌ Launcher script not found at: \(scriptPath)")
+        return
+    }
+    
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: "/bin/bash")
+    process.arguments = [scriptPath]
+    try? process.run()
+    print("  ✅ Process spawned successfully (PID: \(process.processIdentifier))")
+}
+
+func startAIServer() {
+    printBanner()
+    print("  🤖 Starting AI Terminal Server on http://localhost:19847")
+    print("  ─────────────────────────────────────────────────────────")
+    print("  Endpoints:")
+    print("    GET  /health           — Server health check")
+    print("    GET  /status           — Hardware, Wine, game library (JSON)")
+    print("    GET  /diagnose         — CPU, RAM, memory pressure, Wine procs")
+    print("    GET  /logs             — Last 50 diagnostic log lines")
+    print("    GET  /guide            — AI operational specification")
+    print("    POST /command          — Execute shell: {\"command\": \"...\"}")
+    print("    POST /launch           — Launch game: {\"game\": \"gow2\"}")
+    print("  ─────────────────────────────────────────────────────────")
+    print("  Press Ctrl+C to stop\n")
+    
+    AITerminalServer.shared.start()
+    
+    // Keep the process alive
+    dispatchMain()
+}
+
+func printPerformanceSnapshot() {
+    printBanner()
+    print("  📊 REAL-TIME PERFORMANCE SNAPSHOT\n")
+    
+    let snapshot = AIPerformanceMonitor.shared.captureSnapshot()
+    
+    print("  ┌─ SYSTEM ─────────────────────────────────────────────────┐")
+    print("  │  Timestamp     : \(snapshot.timestamp)")
+    print("  │  CPU Cores     : \(snapshot.cpuCores)")
+    print("  │  RAM           : \(snapshot.ramTotalGB) GB")
+    print("  │  Load Average  : \(snapshot.loadAverage)")
+    print("  │  Memory Status : \(snapshot.memoryPressure)")
+    print("  │  GPU           : \(snapshot.gpuName)")
+    print("  │  Metal 3       : \(snapshot.metal3Supported ? "YES ✅" : "NO")")
+    print("  └─────────────────────────────────────────────────────────┘\n")
+    
+    print("  ┌─ WINE PROCESSES (\(snapshot.activeWineProcessCount) active) ─────────────────┐")
+    if snapshot.wineProcesses.isEmpty {
+        print("  │  (No active Wine processes)")
+    } else {
+        for proc in snapshot.wineProcesses.prefix(8) {
+            print("  │  PID \(proc.pid) | CPU: \(proc.cpuPercent)% | MEM: \(proc.memPercent)% | \(proc.command.prefix(50))")
+        }
+    }
+    print("  └─────────────────────────────────────────────────────────┘\n")
+    
+    print("  ┌─ AI RECOMMENDATIONS ─────────────────────────────────────┐")
+    for rec in snapshot.recommendations {
+        print("  │  💡 \(rec)")
+    }
+    print("  └─────────────────────────────────────────────────────────┘\n")
+}
+
+func runBenchmark() {
+    printBanner()
+    print("  ⏱  WINE ENGINE BENCHMARK\n")
+    let result = AIPerformanceMonitor.shared.measureWineStartupLatency()
+    print("  \(result)\n")
+}
+
 // ── MAIN DISPATCH ──────────────────────────────────────────────
 
 switch command {
@@ -176,10 +321,23 @@ case "launch":
         exit(1)
     }
     launchGame(args[2...].joined(separator: " "))
+case "gow2":
+    launchGOW2Direct()
+case "diagnose":
+    printDiagnose()
+case "perf":
+    printPerformanceSnapshot()
+case "benchmark":
+    runBenchmark()
+case "serve":
+    startAIServer()
+case "ai-guide", "help":
+    printAIGuide()
 case "gui":
     printBanner()
     print("  Launching GUI...")
 default:
     print("  Unknown command: \(command)")
-    print("  Commands: status | setup-wine | scan <folder> | launch <game-name> | gui")
+    print("  Commands: status | scan | launch | gow2 | diagnose | perf | benchmark | serve | ai-guide | setup-wine | gui")
 }
+

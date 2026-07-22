@@ -24,6 +24,22 @@ public final class ExeScanner {
     
     public func scanGameFolder(at folderURL: URL) -> ExecutableMetadata? {
         let fileManager = FileManager.default
+        
+        var isDir: ObjCBool = false
+        if fileManager.fileExists(atPath: folderURL.path, isDirectory: &isDir), !isDir.boolValue {
+            // Direct .exe file selection
+            guard folderURL.pathExtension.lowercased() == "exe" else { return nil }
+            let (graphicsAPI, is64Bit) = inspectPEHeader(at: folderURL)
+            return ExecutableMetadata(
+                url: folderURL,
+                relativePath: folderURL.lastPathComponent,
+                fileName: folderURL.lastPathComponent,
+                detectedGraphicsAPI: graphicsAPI,
+                is64Bit: is64Bit,
+                score: 1000
+            )
+        }
+        
         guard let enumerator = fileManager.enumerator(
             at: folderURL,
             includingPropertiesForKeys: [.isRegularFileKey],

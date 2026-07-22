@@ -21,8 +21,15 @@ mkdir -p "$APP_PATH/Contents/MacOS"
 mkdir -p "$APP_PATH/Contents/Resources"
 
 cp ".build/release/elysium-app" "$APP_PATH/Contents/MacOS/elysium-app"
+
+# Copy SPM resource bundle if present
+if [ -d ".build/release/ElysiumVanguard_ElysiumUI.bundle" ]; then
+    cp -R ".build/release/ElysiumVanguard_ElysiumUI.bundle" "$APP_PATH/Contents/Resources/"
+fi
+
 if [ -f "Sources/ElysiumUI/Resources/AppIcon.icns" ]; then
     cp "Sources/ElysiumUI/Resources/AppIcon.icns" "$APP_PATH/Contents/Resources/AppIcon.icns"
+    cp "Sources/ElysiumUI/Resources/AppIcon.icns" "$APP_PATH/Contents/Resources/AppIcon"
 fi
 if [ -f "Sources/ElysiumUI/Resources/elysium_logo.jpg" ]; then
     cp "Sources/ElysiumUI/Resources/elysium_logo.jpg" "$APP_PATH/Contents/Resources/elysium_logo.jpg"
@@ -58,6 +65,10 @@ cat <<EOF > "$APP_PATH/Contents/Info.plist"
 EOF
 
 echo "APPL????" > "$APP_PATH/Contents/PkgInfo"
+
+# Force macOS icon cache refresh
+touch "$APP_PATH"
+touch "$APP_PATH/Contents/Info.plist"
 
 echo "✅ App bundle created successfully at:"
 echo "   $APP_PATH"

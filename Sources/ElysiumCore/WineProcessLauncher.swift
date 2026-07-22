@@ -2,12 +2,11 @@ import Foundation
 import os
 
 public enum WineBinarySource: String, Codable {
-    case elysiumWine = "Elysium Vanguard Internal Wine"
-    case wineStable = "Wine Stable 11.0 (WoW64 Native)"
-    case whiskyWine = "WhiskyWine (Proton-based)"
+    case elysiumWine = "Elysium Vanguard Built-In Wine 11.13 (WoW64 Native)"
+    case wineStable = "Wine Stable 11.0"
     case wineGE = "Wine-GE (GloriousEggroll)"
     case crossoverWine = "CrossOver Wine (CodeWeavers)"
-    case gamePortingToolkit = "Apple Game Porting Toolkit 2.x"
+    case gamePortingToolkit = "Apple Game Porting Toolkit"
 }
 
 public struct WineInstallation: Codable {
@@ -31,14 +30,17 @@ public final class WineProcessLauncher {
         logger.log(.info, subsystem: "WineLauncher", message: "Searching for system Wine installations...")
         var installs: [WineInstallation] = []
         
-        let elysiumWineBinary = WineDownloader.shared.elysiumWineDir.appendingPathComponent("bin/wine64")
+        let customWine11Binary = URL(fileURLWithPath: "/Users/jordelmirsdevhome/Wine/wine-11.13-install/bin/wine")
+        let elysiumWineAppBinary = WineDownloader.shared.elysiumWineDir.appendingPathComponent("Wine Staging.app/Contents/Resources/wine/bin/wine")
+        let elysiumWineBinary = WineDownloader.shared.elysiumWineDir.appendingPathComponent("bin/wine")
         
         let searchPaths: [(URL, WineBinarySource, String)] = [
+            (elysiumWineAppBinary, .elysiumWine, "11.13-Staging"),
+            (customWine11Binary, .elysiumWine, "11.13-WoW64-Builtin"),
+            (elysiumWineBinary, .elysiumWine, "11.x"),
             (URL(fileURLWithPath: "/Applications/Wine Stable.app/Contents/Resources/wine/bin/wine"), .wineStable, "11.0"),
-            (elysiumWineBinary, .elysiumWine, "2.0"),
             (URL(fileURLWithPath: "/usr/local/opt/game-porting-toolkit/bin/wine64"), .gamePortingToolkit, "2.0"),
             (URL(fileURLWithPath: "/opt/homebrew/opt/game-porting-toolkit/bin/wine64"), .gamePortingToolkit, "2.0"),
-            (URL(fileURLWithPath: "\(NSHomeDirectory())/Library/Application Support/com.isaacmarovitz.Whisky/Libraries/Wine/bin/wine64"), .whiskyWine, "9.x"),
             (URL(fileURLWithPath: "/usr/local/bin/wine64"), .wineGE, "9.x"),
             (URL(fileURLWithPath: "/opt/homebrew/bin/wine64"), .wineGE, "9.x"),
             (URL(fileURLWithPath: "/Applications/CrossOver.app/Contents/SharedSupport/CrossOver/bin/wine64"), .crossoverWine, "24.x"),
@@ -73,13 +75,7 @@ public final class WineProcessLauncher {
         let installs = discoverWineInstallations()
         let profile = HardwareProbe.shared.detectProfile()
         
-        let priorityOrder: [WineBinarySource]
-        switch profile.cpuArch {
-        case .appleSilicon:
-            priorityOrder = [.wineStable, .elysiumWine, .gamePortingToolkit, .whiskyWine, .crossoverWine, .wineGE]
-        case .intelx86:
-            priorityOrder = [.wineStable, .elysiumWine, .crossoverWine, .wineGE, .whiskyWine, .gamePortingToolkit]
-        }
+        let priorityOrder: [WineBinarySource] = [.elysiumWine, .wineStable, .gamePortingToolkit, .crossoverWine, .wineGE]
         
         for preferred in priorityOrder {
             if let found = installs.first(where: { $0.source == preferred }) {
@@ -107,29 +103,30 @@ public final class WineProcessLauncher {
             "pipeline": bottleConfig.targetPipeline.rawValue
         ])
         
+        let exeURL = URL(fileURLWithPath: entry.mainExecutablePath)
+        let exeDir = exeURL.deletingLastPathComponent()
+        
         let process = Process()
         process.executableURL = wine.wineBinaryPath
-        process.arguments = [entry.mainExecutablePath]
-        process.currentDirectoryURL = URL(fileURLWithPath: entry.gameFolderPath)
         
-        var env = ProcessInfo.processInfo.environment
+        // Use PerformanceOptimizer turbo profile
+        let profile = PerformanceOptimizer.shared.getProfile(for: entry.gameName, exeName: exeURL.lastPathComponent)
+        var env = PerformanceOptimizer.shared.buildOptimizedEnvironment(profile: profile)
+        
+        // Bottle prefix
+        let prefixURL = bottleConfig.bottlePath.appendingPathComponent("\(entry.gameName.replacingOccurrences(of: " ", with: "_"))_Prefix")
+        env["WINEPREFIX"] = prefixURL.path
         
         for (k, v) in bottleConfig.environmentVariables { env[k] = v }
         
-        let engineProfile = GameEngineProfileDetector.shared.detectEngine(
-            in: URL(fileURLWithPath: entry.gameFolderPath),
-            mainExeName: entry.mainExecutablePath
-        )
-        for (k, v) in engineProfile.recommendedEnv { env[k] = v }
-        
-        let shaderEnv = ShaderCacheManager.shared.prepareShaderCache(for: entry.gameName)
-        for (k, v) in shaderEnv { env[k] = v }
-        
-        if let patch = GamePatchRegistry.shared.findPatch(for: URL(fileURLWithPath: entry.mainExecutablePath).lastPathComponent) {
+        if let patch = GamePatchRegistry.shared.findPatch(for: exeURL.lastPathComponent) {
             for (k, v) in patch.envOverrides { env[k] = v }
             logger.log(.info, subsystem: "WineLauncher", message: "Applied game patch overrides: \(patch.notes)")
         }
         
+        process.executableURL = wine.wineBinaryPath
+        process.arguments = [exeURL.lastPathComponent] + profile.gameArguments
+        process.currentDirectoryURL = exeDir
         process.environment = env
         
         do {
