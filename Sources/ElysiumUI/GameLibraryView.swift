@@ -28,7 +28,7 @@ public struct GameLibraryView: View {
             
             // Layer 2: Content
             VStack(spacing: 0) {
-                // ── TOP BAR ────────────────────────────────
+                // ── TOP BAR WITH 3D LOGO ────────────────────────────────
                 topBar
                     .padding(.horizontal, 20)
                     .padding(.top, 12)
@@ -54,11 +54,14 @@ public struct GameLibraryView: View {
     
     // MARK: - Top Bar
     private var topBar: some View {
-        HStack {
-            // Logo + Title
+        HStack(spacing: 12) {
+            // 3D Animated Logo
+            ElysiumLogoView(size: .small)
+            
+            // Title
             VStack(alignment: .leading, spacing: 2) {
                 Text("WINMAC ELYSIUM VANGUARD")
-                    .font(.system(size: 20, weight: .black, design: .monospaced))
+                    .font(.system(size: 18, weight: .black, design: .monospaced))
                     .foregroundStyle(
                         LinearGradient(
                             colors: [theme.primaryColor, theme.secondaryColor],
@@ -117,28 +120,34 @@ public struct GameLibraryView: View {
         }
     }
     
-    // MARK: - Empty State
+    // MARK: - Empty State View with Hero 3D Logo
     private var emptyStateView: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 24) {
             Spacer()
             
-            Image(systemName: "gamecontroller.fill")
-                .font(.system(size: 72))
-                .foregroundColor(theme.primaryColor.opacity(0.3))
-                .shadow(color: theme.primaryColor.opacity(0.2), radius: 20)
+            // Hero 3D Pulsing Emblem Logo
+            ElysiumLogoView(size: .hero)
             
-            Text("NO GAMES IN LIBRARY")
-                .font(.system(size: 18, weight: .black, design: .monospaced))
-                .foregroundColor(.white.opacity(0.6))
-            
-            Text("Select an uncompressed Windows game folder to begin.")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+            VStack(spacing: 6) {
+                Text("WINMAC ELYSIUM VANGUARD")
+                    .font(.system(size: 22, weight: .black, design: .monospaced))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [theme.primaryColor, theme.secondaryColor],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                
+                Text("Select an uncompressed Windows game folder to begin 1-Click execution.")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
             
             Button(action: selectGameFolder) {
                 HStack {
                     Image(systemName: "folder.badge.plus")
-                    Text("SELECT GAME FOLDER")
+                    Text("SELECT UNCOMPRESSED GAME FOLDER")
                 }
                 .font(.system(size: 14, weight: .black, design: .monospaced))
                 .padding(.horizontal, 28)
@@ -152,7 +161,7 @@ public struct GameLibraryView: View {
                 )
                 .foregroundColor(.black)
                 .cornerRadius(14)
-                .shadow(color: theme.primaryColor.opacity(0.5), radius: 12)
+                .shadow(color: theme.primaryColor.opacity(0.6), radius: 14)
             }
             .buttonStyle(.plain)
             
@@ -170,12 +179,10 @@ public struct GameLibraryView: View {
     // MARK: - Game Grid
     private var gameGridView: some View {
         ScrollView {
-            // Performance HUD
             PerformanceHUDView(pipelineName: hardwareProfile.recommendedPipeline.rawValue)
                 .padding(.horizontal, 20)
                 .padding(.top, 12)
             
-            // Game Cards Grid
             LazyVGrid(
                 columns: [GridItem(.adaptive(minimum: 220, maximum: 260), spacing: 16)],
                 spacing: 16
@@ -216,8 +223,6 @@ public struct GameLibraryView: View {
             return
         }
         
-        // Find the bottle config
-        // For now, create a fresh config from the stored bottle path
         let bottlePath = URL(fileURLWithPath: NSHomeDirectory())
             .appendingPathComponent("Library/Application Support/ElysiumVanguard/Bottles")
         

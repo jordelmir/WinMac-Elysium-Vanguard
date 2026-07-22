@@ -22,7 +22,10 @@ let package = Package(
         .target(
             name: "ElysiumUI",
             dependencies: ["ElysiumCore"],
-            path: "Sources/ElysiumUI"
+            path: "Sources/ElysiumUI",
+            resources: [
+                .process("Resources")
+            ]
         ),
         .executableTarget(
             name: "ElysiumCLI",

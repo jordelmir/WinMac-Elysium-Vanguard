@@ -5,7 +5,7 @@ echo "🌌 ==================================================================== 
 echo "⚡     WINMAC ELYSIUM VANGUARD - RELEASE APP BUNDLE COMPILER          ⚡"
 echo "🌌 ==================================================================== 🌌"
 
-PROJECT_DIR="/Users/jordelmirsdevhome/Downloads/Juegos/ElysiumVanguard"
+PROJECT_DIR="$(pwd)"
 BUILD_DIR="$PROJECT_DIR/build/Release"
 APP_NAME="WinMac Elysium Vanguard.app"
 APP_PATH="$BUILD_DIR/$APP_NAME"
@@ -20,10 +20,8 @@ rm -rf "$APP_PATH"
 mkdir -p "$APP_PATH/Contents/MacOS"
 mkdir -p "$APP_PATH/Contents/Resources"
 
-# Copy binary
 cp ".build/release/elysium-app" "$APP_PATH/Contents/MacOS/elysium-app"
 
-# Create Info.plist
 cat <<EOF > "$APP_PATH/Contents/Info.plist"
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
