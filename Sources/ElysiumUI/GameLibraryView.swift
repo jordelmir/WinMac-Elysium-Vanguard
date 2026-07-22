@@ -9,7 +9,7 @@ public struct GameLibraryView: View {
     @State private var isScanning: Bool = false
     @State private var errorMessage: String? = nil
     @State private var showSettings: Bool = false
-    @State private var activePresetName: String = "Cyberpunk"
+    @State private var activePresetName: String = "Tactical Blue"
     
     public init() {}
     
@@ -17,7 +17,7 @@ public struct GameLibraryView: View {
         ZStack {
             // Layer 0: Dark gradient base
             LinearGradient(
-                colors: [Color.black, Color(hex: "#050B14"), Color(hex: "#0A001A")],
+                colors: [Color.black, Color(hex: "#030814"), Color(hex: "#051020")],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -35,7 +35,7 @@ public struct GameLibraryView: View {
                     .padding(.bottom, 8)
                 
                 Divider()
-                    .background(theme.primaryColor.opacity(0.15))
+                    .background(theme.primaryColor.opacity(0.2))
                 
                 // ── MAIN CONTENT ───────────────────────────
                 if showSettings {
@@ -84,14 +84,14 @@ public struct GameLibraryView: View {
             
             Spacer()
             
-            // Palette switcher
+            // Tactical Palette switcher
             HStack(spacing: 6) {
-                paletteButton("CYB", .cyberpunkDefault, "Cyberpunk")
-                paletteButton("MTX", .matrixGreen, "Matrix")
-                paletteButton("VPW", .vaporwave, "Vaporwave")
+                paletteButton("BLUE", .tacticalDefault, "Tactical Blue")
+                paletteButton("MTX", .matrixGreen, "Matrix Green")
+                paletteButton("RED", .crimsonVanguard, "Crimson Red")
             }
             .padding(3)
-            .background(Color.black.opacity(0.5))
+            .background(Color.black.opacity(0.6))
             .cornerRadius(10)
             
             // Add game button
@@ -106,7 +106,7 @@ public struct GameLibraryView: View {
                 .background(theme.primaryColor)
                 .foregroundColor(.black)
                 .cornerRadius(8)
-                .shadow(color: theme.primaryColor.opacity(0.4), radius: 6)
+                .shadow(color: theme.primaryColor.opacity(0.5), radius: 8)
             }
             .buttonStyle(.plain)
             
@@ -120,12 +120,11 @@ public struct GameLibraryView: View {
         }
     }
     
-    // MARK: - Empty State View with Hero 3D Logo
+    // MARK: - Empty State View
     private var emptyStateView: some View {
         VStack(spacing: 24) {
             Spacer()
             
-            // Hero 3D Pulsing Emblem Logo
             ElysiumLogoView(size: .hero)
             
             VStack(spacing: 6) {

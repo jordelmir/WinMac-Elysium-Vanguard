@@ -8,10 +8,10 @@ public struct SettingsView: View {
     @State private var selectedWineSource: WineBinarySource? = nil
     @State private var hardwareProfile = HardwareProbe.shared.detectProfile()
     
-    @State private var customPrimaryHex: String = "#00F0FF"
-    @State private var customSecondaryHex: String = "#FF007F"
+    @State private var customPrimaryHex: String = "#0088FF"
+    @State private var customSecondaryHex: String = "#00FFCC"
     @State private var customTertiaryHex: String = "#39FF14"
-    @State private var customQuaternaryHex: String = "#FF6600"
+    @State private var customQuaternaryHex: String = "#FF4500"
     
     public init() {}
     
@@ -80,27 +80,25 @@ public struct SettingsView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 
-                // ── SECTION 3: NEON THEME CUSTOMIZER ─────────────
-                sectionHeader("NEON THEME CUSTOMIZER (4-TIER)")
+                // ── SECTION 3: TACTICAL NEON CUSTOMIZER ──────────
+                sectionHeader("TACTICAL NEON CUSTOMIZER (4-TIER)")
                 
                 NeonGlassCardView {
                     VStack(alignment: .leading, spacing: 12) {
-                        // Preset buttons
                         HStack(spacing: 10) {
-                            presetButton("Cyberpunk", .cyberpunkDefault)
-                            presetButton("Matrix", .matrixGreen)
-                            presetButton("Vaporwave", .vaporwave)
+                            presetButton("Tactical Blue", .tacticalDefault)
+                            presetButton("Matrix Green", .matrixGreen)
+                            presetButton("Crimson Red", .crimsonVanguard)
                         }
                         
                         Divider().background(theme.primaryColor.opacity(0.2))
                         
-                        // Custom hex editors
-                        colorHexRow("PRIMARY", $customPrimaryHex, theme.primaryColor)
-                        colorHexRow("SECONDARY", $customSecondaryHex, theme.secondaryColor)
-                        colorHexRow("TERTIARY", $customTertiaryHex, theme.tertiaryColor)
-                        colorHexRow("QUATERNARY", $customQuaternaryHex, theme.quaternaryColor)
+                        colorHexRow("PRIMARY (BLUE)", $customPrimaryHex, theme.primaryColor)
+                        colorHexRow("SECONDARY (CYAN)", $customSecondaryHex, theme.secondaryColor)
+                        colorHexRow("TERTIARY (GREEN)", $customTertiaryHex, theme.tertiaryColor)
+                        colorHexRow("QUATERNARY (RED)", $customQuaternaryHex, theme.quaternaryColor)
                         
-                        Button("APPLY CUSTOM PALETTE") {
+                        Button("APPLY TACTICAL PALETTE") {
                             theme.setPalette(NeonColorPalette(
                                 primaryHex: customPrimaryHex,
                                 secondaryHex: customSecondaryHex,
@@ -182,7 +180,7 @@ public struct SettingsView: View {
             Text(label)
                 .font(.system(size: 10, weight: .bold, design: .monospaced))
                 .foregroundColor(.gray)
-                .frame(width: 90, alignment: .leading)
+                .frame(width: 130, alignment: .leading)
             TextField("Hex", text: hex)
                 .textFieldStyle(.plain)
                 .font(.system(size: 12, weight: .semibold, design: .monospaced))
