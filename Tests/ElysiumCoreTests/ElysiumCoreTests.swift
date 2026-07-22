@@ -123,7 +123,7 @@ final class ElysiumCoreTests: XCTestCase {
     func testGamePatchRegistryGOW2() throws {
         let patch = GamePatchRegistry.shared.findPatch(for: "gow2_main.exe")
         XCTAssertNotNil(patch)
-        XCTAssertEqual(patch?.envOverrides["DXVK_ASYNC"], "1")
+        XCTAssertEqual(patch?.envOverrides["WINEESYNC"], "1")
     }
     
     func testGamePatchRegistryUnknownGameReturnsNil() throws {

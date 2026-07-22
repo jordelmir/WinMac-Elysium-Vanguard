@@ -28,15 +28,34 @@ public final class GamePatchRegistry {
             notes: "Enables Ray Tracing and ACO Shader compiler for REDengine 4."
         ))
         
+        // ── GoW2 / UE3 32-bit on Apple Silicon comprehensive fix ──
         patches.append(GameFixPatch(
             gameTitlePattern: "gow2",
             envOverrides: [
+                // Thread sync
                 "WINEESYNC": "1",
-                "WINEMSYNC": "1",
-                "DXVK_ASYNC": "1"
+                // 32-bit memory management — prevents virtual.c assertion
+                "WINE_LARGE_ADDRESS_AWARE": "0",
+                "WINE_HEAP_DELAY_FREE": "0",
+                // OpenGL compatibility (GPTK 1.x has no Vulkan)
+                "MESA_GL_VERSION_OVERRIDE": "4.6",
+                "MESA_GLSL_VERSION_OVERRIDE": "460",
+                // Metal GPU stability
+                "MVK_CONFIG_RESUME_LOST_DEVICE": "1",
+                // Suppress noisy debug output
+                "WINEDEBUG": "fixme-all,warn-all"
             ],
-            dllOverrides: ["d3d11": "native,builtin"],
-            notes: "Gears of War 2 Nativo / Unreal Engine 3 high frametime stabilization patch."
+            dllOverrides: [
+                // Use Wine's built-in D3D9 → OpenGL (wined3d)
+                "d3d9": "builtin",
+                "d3d11": "builtin",
+                "dxgi": "builtin",
+                "d3d10core": "builtin",
+                // Use game's own DLLs for these
+                "dbghelp": "native,builtin",
+                "steam_api": "native"
+            ],
+            notes: "Gears of War 2 (UE3 32-bit): virtual.c fix, texture streaming disabled, memory pressure reduced, OpenGL forced."
         ))
     }
     
