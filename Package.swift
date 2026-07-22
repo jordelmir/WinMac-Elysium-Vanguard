@@ -4,11 +4,12 @@ import PackageDescription
 let package = Package(
     name: "ElysiumVanguard",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v14)
     ],
     products: [
         .executable(name: "elysium-cli", targets: ["ElysiumCLI"]),
-        .library(name: "ElysiumCore", targets: ["ElysiumCore"])
+        .library(name: "ElysiumCore", targets: ["ElysiumCore"]),
+        .library(name: "ElysiumUI", targets: ["ElysiumUI"])
     ],
     dependencies: [],
     targets: [
@@ -17,9 +18,14 @@ let package = Package(
             dependencies: [],
             path: "Sources/ElysiumCore"
         ),
+        .target(
+            name: "ElysiumUI",
+            dependencies: ["ElysiumCore"],
+            path: "Sources/ElysiumUI"
+        ),
         .executableTarget(
             name: "ElysiumCLI",
-            dependencies: ["ElysiumCore"],
+            dependencies: ["ElysiumCore", "ElysiumUI"],
             path: "Sources/ElysiumCLI"
         ),
         .testTarget(
